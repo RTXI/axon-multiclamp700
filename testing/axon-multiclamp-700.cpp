@@ -9,10 +9,13 @@ extern "C" Plugin::Object * createRTXIPlugin(void) {
 static DefaultGUIModel::variable_t vars[] = {
 	{ "Mode Input", "", DefaultGUIModel::INPUT, },
 	{ "Mode Output", "", DefaultGUIModel::OUTPUT, },
-	{ "Input Channel", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::UINTEGER, },
-	{ "Output Channel", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::UINTEGER, },
-	{ "VClamp Gain", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
-	{ "IClamp Gain", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
+	{ "Acquisition Mode", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
+	{ "Input Channel", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
+	{ "Output Channel", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
+	{ "VClamp Gain", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, }, 
+	{ "IClamp Gain", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
+	{ "VClamp Sensitivity", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
+	{ "IClamp Sensitivity", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, }, 
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
@@ -21,8 +24,8 @@ MultiClamp::MultiClamp(void) : DefaultGUIModel("Axon MultiClamp 700 Controller",
 	setWhatsThis("<p>Yeah, I'll get to this later... <br>-Ansel</p>");
 	DefaultGUIModel::createGUI(vars, num_vars);
 	initParameters();
-	createGUI(vars, num_vars);
-//	customizeGUI();
+	std::cout<<"flag1\t"<<mode<<std::endl;
+	customizeGUI();
 	update( INIT );
 	refresh();
 };
@@ -33,7 +36,9 @@ void MultiClamp::initParameters(void) {
 	input_channel = 0;
 	output_channel = 1;
 
-	vclamp_gain = iclamp_gain = 1;
+	mode = 3; // NONE;
+	vclamp_gain = iclamp_gain = 0; //G1;
+	vclamp_sens = iclamp_sens = 0; //V20mV;
 };
 
 void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
@@ -43,18 +48,41 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			setParameter("Output Channel", output_channel);
 			setParameter("VClamp Gain", vclamp_gain);
 			setParameter("IClamp Gain", iclamp_gain);
+			setParameter("VClamp Sensitivity", vclamp_sens);
+			setParameter("IClamp Sensitivity", iclamp_sens);
+	std::cout<<"flag2\t"<<mode<<std::endl;
+			setParameter("Acquisition Mode", mode);
+	std::cout<<"flag3\t"<<mode<<std::endl;
+			inputBox->setValue(input_channel);
+	std::cout<<"flag4\t"<<mode<<std::endl;
+			outputBox->setValue(output_channel);
+	std::cout<<"flag5\t"<<mode<<std::endl;
+			updateModeGUI(mode);
+	std::cout<<"flag6\t"<<mode<<std::endl;
+			std::cout<<ampButtonGroup->checkedId()<<std::endl;
+//			ampButtonGroup->button(mode)->setChecked(true);
+			vclampGainBox->setCurrentIndex(vclamp_gain);
+			iclampGainBox->setCurrentIndex(iclamp_gain);
+			vclampSensBox->setCurrentIndex(vclamp_sens);
+			vclampSensBox->setCurrentIndex(iclamp_sens);
 			break;
 		
-		case MODIFY:
-			break;
-
-		case PAUSE:
-			break;
-
-		case UNPAUSE:
-			break;
-
-		case PERIOD:
+		case MODIFY: //update( MODIFY ) is called by DefaultGUIModel::doLoad, so this is needed.
+			input_channel = getParameter("Input Channel").toInt();
+			output_channel = getParameter("Output Channel").toInt();
+			vclamp_gain = getParameter("VClamp Gain").toInt();
+			iclamp_gain = getParameter("IClamp Gain").toInt();
+			vclamp_sens = getParameter("VClamp Sensitivity").toInt();
+			iclamp_sens = getParameter("IClamp Sensitivity").toInt();
+			mode = getParameter("Acquisition Mode").toInt();
+			inputBox->setValue(input_channel);
+			outputBox->setValue(output_channel);
+//			updateModeGUI(mode);
+			ampButtonGroup->button(mode)->setChecked(true);
+			vclampGainBox->setCurrentIndex(vclamp_gain);
+			iclampGainBox->setCurrentIndex(iclamp_gain);
+			vclampSensBox->setCurrentIndex(vclamp_sens);
+			vclampSensBox->setCurrentIndex(iclamp_sens);	
 			break;
 
 		default:
@@ -62,45 +90,119 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 	}
 }
 
-void customizeGUI(void) {
+//void MultiClamp::updateModeGUI(AmpMode_t mode) {
+
+void MultiClamp::updateModeGUI(int mode) {
+	switch(mode) {
+		case 1: //ICLAMP:
+			iclamp_button->setChecked(true);
+			break;
 	
+		case 2: //VCLAMP:
+			vclamp_button->setChecked(true);
+			break;
+	
+		case 3: //NONE:
+			none_button->setChecked(true);
+			break;
+
+		default:
+			break;
+	}
+	return;
 }
 
-/*
-void MultiClamp::createGUI(DefaultGUIModel::variable_t *var, int size) {
-	QWidget::setAttribute(Qt::WA_DeleteOnClose);
 
-	// Make Mdi
-	DefaultGUIModel::subWindow = new QMdiSubWindow;
-	subWindow->setWindowFlags(Qt::WindowCloseButtonHint);
-	subWindow->setOption(QMdiSubWindow::RubberBandResize, true);
-	subWindow->setOption(QMdiSubWindow::RubberBandMove, true);
-	MainWindow::getInstance()->createMdi(subWindow);
+void MultiClamp::updateGUItoParam(void) {
+	input_channel = inputBox->value();
+	output_channel = outputBox->value();
+	vclamp_gain = vclampGainBox->currentIndex();
+	iclamp_gain = iclampGainBox->currentIndex();
+	vclamp_sens = vclampSensBox->currentIndex();
+	iclamp_sens = iclampSensBox->currentIndex();
+	mode = ampButtonGroup->checkedId();
 
-	layout = new QGridLayout;
-	setLayout(layout);
-	subWindow->setWidget(this);
+	setParameter("Input Channel", input_channel);
+	setParameter("Output Channel", output_channel);
+	setParameter("VClamp Gain", vclamp_gain);
+	setParameter("IClamp Gain", iclamp_gain);
+	setParameter("VClamp Sensitivity", vclamp_sens);
+	setParameter("IClamp Sensitivity", iclamp_sens);
+	setParameter("Acquisition Mode", mode);
+}
+
+void MultiClamp::customizeGUI(void) {
+	QGridLayout *customLayout = DefaultGUIModel::getLayout();
 	
-	// create utilitybox
-	utilityGroup = new QGroupBox; 
-	QHBoxLayout *utilityLayout = new QHBoxLayout;
-	utilityGroup->setLayout(utilityLayout);
+//	customLayout->itemAtPosition(1,0)->widget()->setVisible(false);
+	customLayout->itemAtPosition(10,0)->widget()->setVisible(false);
 
-	pauseButton = new QPushButton("Pause", this);
-	pauseButton->setCheckble(true);
-	QObject::connect(pauseButton, SIGNAL(toggled(bool)),this,SLOT(pause(bool)));
-	utilityLayout->addWidget(pauseButton);
+	// Input and Output channels
+	QGroupBox *ioGroup = new QGroupBox("DAQ Channels");
+	ioGroup->setStyleSheet("QGroupBox { font: bold; } ");
+	QHBoxLayout *ioGroupLayout = new QHBoxLayout;
+	inputBox = new QSpinBox;
+	outputBox = new QSpinBox;
+	QLabel *inputBoxLabel = new QLabel;
+	QLabel *outputBoxLabel = new QLabel;
+	inputBoxLabel->setText("Input");
+	outputBoxLabel->setText("Output");
+	ioGroupLayout->addWidget(inputBoxLabel);//, Qt::AlignLeft);
+	ioGroupLayout->addWidget(inputBox);//, Qt::AlignRight);
+	ioGroupLayout->addWidget(outputBoxLabel);//, Qt::AlignLeft);
+	ioGroupLayout->addWidget(outputBox);//, Qt::AlignRight);
+	ioGroupLayout->insertSpacing(2, 30);
+	ioGroup->setLayout(ioGroupLayout);
 
-	modifyButton = new QPushButton("Modify", this);
-	QObject::connect(modifyButton,SIGNAL(clicked(void)),this,SLOT(modify(void)));
-	utilityLayout->addWidget(modifyButton);
-
-	unloadButton = new QPushButton("Unload", this);
-	QObject::connect(unloadButton,SIGNAL(clicked(void)),this,SLOT(modify(void)));
-	utilityLayout->addWidget(unloadButton);
-
+	// VClamp settings
+	QGroupBox * vclampGroup = new QGroupBox("VClamp Settings");
+	vclampGroup->setStyleSheet("QGroupBox { font: bold; }");
+	QFormLayout *vclampGroupLayout = new QFormLayout;
+	vclampGroup->setLayout(vclampGroupLayout);
+	vclampGainBox = new QComboBox;
+	vclampSensBox = new QComboBox;
+	vclampGainBox->insertItem( 1, tr( "1" ) );
+	vclampGainBox->insertItem( 2, tr( "2" ) );
+	vclampGainBox->insertItem( 3, tr( "5" ) );
+	vclampGainBox->insertItem( 4, tr( "10" ) );
+	vclampGainBox->insertItem( 5, tr( "20" ) );
+	vclampGainBox->insertItem( 6, tr( "50" ) );
+	vclampGainBox->insertItem( 7, tr( "100" ) );
+	vclampGainBox->insertItem( 8, tr( "200" ) );
+	vclampGainBox->insertItem( 9, tr( "500" ) );
+	vclampGainBox->insertItem( 10, tr( "1000" ) );
+	vclampGainBox->insertItem( 11, tr( "2000" ) );
+	vclampSensBox->insertItem( 1, tr( "20 mV / V" ) );
+	vclampSensBox->insertItem( 2, tr( "100 mV / V" ) );
+	vclampGroupLayout->addRow( tr("Output Gain"), vclampGainBox);
+	vclampGroupLayout->addRow( tr("Sensitivity"), vclampSensBox);
+	
+	// IClamp settings
+	QGroupBox * iclampGroup = new QGroupBox("IClamp Settings");
+	iclampGroup->setStyleSheet("QGroupBox { font: bold; } ");
+	QFormLayout *iclampGroupLayout = new QFormLayout;
+	iclampGroup->setLayout(iclampGroupLayout);
+	iclampGainBox = new QComboBox;
+	iclampSensBox = new QComboBox;
+	iclampGainBox->insertItem( 1, tr( "1" ) );
+	iclampGainBox->insertItem( 2, tr( "2" ) );
+	iclampGainBox->insertItem( 3, tr( "5" ) );
+	iclampGainBox->insertItem( 4, tr( "10" ) );
+	iclampGainBox->insertItem( 5, tr( "20" ) );
+	iclampGainBox->insertItem( 6, tr( "50" ) );
+	iclampGainBox->insertItem( 7, tr( "100" ) );
+	iclampGainBox->insertItem( 8, tr( "200" ) );
+	iclampGainBox->insertItem( 9, tr( "500" ) );
+	iclampGainBox->insertItem( 10, tr( "1000" ) );
+	iclampGainBox->insertItem( 11, tr( "2000" ) );
+	iclampSensBox->insertItem( 1, tr( "20 mV / V" ) );
+	iclampSensBox->insertItem( 2, tr( "100 mV / V" ) );
+	iclampGroupLayout->addRow( tr("Output Gain"), iclampGainBox);
+	iclampGroupLayout->addRow( tr("Sensitivity"), iclampSensBox);
+	
 	// create amp control buttons
 	QGroupBox *ampModeGroup = new QGroupBox("Amplifier Mode");
+	ampModeGroup->setStyleSheet("QGroupBox { font: bold; } ");
 	QHBoxLayout *ampModeGroupLayout = new QHBoxLayout;
 	ampModeGroup->setLayout(ampModeGroupLayout);
 	
@@ -110,18 +212,31 @@ void MultiClamp::createGUI(DefaultGUIModel::variable_t *var, int size) {
 	iclamp_button->setCheckable(true);
 	vclamp_button->setCheckable(true);
 	none_button->setCheckable(true);
-	QButtonGroup *ampButtonGroup = new QButtonGroup;
-	ampButtonGroup->addButton(iclamp_button, 0);
-	ampButtonGroup->addButton(vclamp_button, 1);
-	ampButtonGroup->addButton(none_button, 2);
+	ampButtonGroup = new QButtonGroup;
+	ampButtonGroup->addButton(iclamp_button, 1);
+	ampButtonGroup->addButton(vclamp_button, 2);
+	ampButtonGroup->addButton(none_button, 3);
 	ampButtonGroup->setExclusive(true);
 	ampModeGroupLayout->addWidget(vclamp_button);
 	ampModeGroupLayout->addWidget(none_button);
 	ampModeGroupLayout->addWidget(iclamp_button);
 
-	// Add groups to layout
-	layout->addWidget(ampModeGroup,0,0);
-	layout->addWidget(ampModeGroup,1,0);
-	show();
+	// add widgets to layout and set the new layout
+	customLayout->addWidget(ioGroup, 0, 0);
+	customLayout->addWidget(ampModeGroup, 2, 0);
+	customLayout->addWidget(vclampGroup, 3, 0);
+	customLayout->addWidget(iclampGroup, 4, 0);
+	setLayout(customLayout);
+
+	// Make connections for buttons
+	QObject::connect(vclampGainBox, SIGNAL(activated(int)), this, SLOT(updateGUItoParam(void)));
+	QObject::connect(vclampSensBox, SIGNAL(activated(int)), this, SLOT(updateGUItoParam(void)));
+	QObject::connect(iclampSensBox, SIGNAL(activated(int)), this, SLOT(updateGUItoParam(void)));
+	QObject::connect(iclampGainBox, SIGNAL(activated(int)), this, SLOT(updateGUItoParam(void)));
+	QObject::connect(inputBox, SIGNAL(valueChanged(int)), this, SLOT(updateGUItoParam(void)));
+	QObject::connect(outputBox, SIGNAL(valueChanged(int)), this, SLOT(updateGUItoParam(void)));
+//	QObject::connect(ampButtonGroup, SIGNAL(buttonPressed(int)), this, SLOT(updateGUItoParam(void)));
+	QObject::connect(vclamp_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
+	QObject::connect(iclamp_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
+	QObject::connect(none_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
 }
-*/
