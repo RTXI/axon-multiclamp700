@@ -59,5 +59,12 @@ class MultiClamp : public DefaultGUIModel {
 		void updateModeGUI(int);
 
 	public slots:
-		void updateGUItoParam(void);
+//		void updateGUItoParam(void);
+		void updateInputChannel(int);
+		void updateOutputChannel(int);
+		void updateMode(int);
+		void updateVClampGain(int);
+		void updateIClampGain(int);
+		void updateVClampSens(int);
+		void updateIClampSens(int);
 };

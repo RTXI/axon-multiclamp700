@@ -24,7 +24,6 @@ MultiClamp::MultiClamp(void) : DefaultGUIModel("Axon MultiClamp 700 Controller",
 	setWhatsThis("<p>Yeah, I'll get to this later... <br>-Ansel</p>");
 	DefaultGUIModel::createGUI(vars, num_vars);
 	initParameters();
-	std::cout<<"flag1\t"<<mode<<std::endl;
 	customizeGUI();
 	update( INIT );
 	refresh();
@@ -33,34 +32,28 @@ MultiClamp::MultiClamp(void) : DefaultGUIModel("Axon MultiClamp 700 Controller",
 MultiClamp::~MultiClamp(void) {};
 
 void MultiClamp::initParameters(void) {
-	input_channel = 0;
-	output_channel = 1;
+	input_channel = 3;
+	output_channel = 5;
 
 	mode = 3; // NONE;
-	vclamp_gain = iclamp_gain = 0; //G1;
-	vclamp_sens = iclamp_sens = 0; //V20mV;
+	vclamp_gain = iclamp_gain = 2; //G1;
+	vclamp_sens = iclamp_sens = 2; //V20mV;
 };
 
 void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 	switch(flag) {
 		case INIT:
 			setParameter("Input Channel", input_channel);
-			setParameter("Output Channel", output_channel);
+			setParameter("Output Channel",output_channel);
 			setParameter("VClamp Gain", vclamp_gain);
 			setParameter("IClamp Gain", iclamp_gain);
 			setParameter("VClamp Sensitivity", vclamp_sens);
 			setParameter("IClamp Sensitivity", iclamp_sens);
-	std::cout<<"flag2\t"<<mode<<std::endl;
 			setParameter("Acquisition Mode", mode);
-	std::cout<<"flag3\t"<<mode<<std::endl;
 			inputBox->setValue(input_channel);
-	std::cout<<"flag4\t"<<mode<<std::endl;
 			outputBox->setValue(output_channel);
-	std::cout<<"flag5\t"<<mode<<std::endl;
-			updateModeGUI(mode);
-	std::cout<<"flag6\t"<<mode<<std::endl;
-			std::cout<<ampButtonGroup->checkedId()<<std::endl;
-//			ampButtonGroup->button(mode)->setChecked(true);
+//			updateModeGUI(mode);
+			ampButtonGroup->button(mode)->setChecked(true);
 			vclampGainBox->setCurrentIndex(vclamp_gain);
 			iclampGainBox->setCurrentIndex(iclamp_gain);
 			vclampSensBox->setCurrentIndex(vclamp_sens);
@@ -91,8 +84,7 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 }
 
 //void MultiClamp::updateModeGUI(AmpMode_t mode) {
-
-void MultiClamp::updateModeGUI(int mode) {
+/*void MultiClamp::updateModeGUI(int mode) {
 	switch(mode) {
 		case 1: //ICLAMP:
 			iclamp_button->setChecked(true);
@@ -110,9 +102,9 @@ void MultiClamp::updateModeGUI(int mode) {
 			break;
 	}
 	return;
-}
+}*/
 
-
+/*
 void MultiClamp::updateGUItoParam(void) {
 	input_channel = inputBox->value();
 	output_channel = outputBox->value();
@@ -129,6 +121,49 @@ void MultiClamp::updateGUItoParam(void) {
 	setParameter("VClamp Sensitivity", vclamp_sens);
 	setParameter("IClamp Sensitivity", iclamp_sens);
 	setParameter("Acquisition Mode", mode);
+}
+*/
+
+void MultiClamp::updateInputChannel(int value) {
+	input_channel = value;
+	setParameter("Input Channel", input_channel);
+	return;
+}
+
+void MultiClamp::updateOutputChannel(int value) {
+	output_channel = value;
+	setParameter("Output Channel", output_channel);
+	return;
+}
+
+void MultiClamp::updateMode(int value) {
+	mode = value;
+	setParameter("Acquisition Mode", mode);
+	return;
+}
+
+void MultiClamp::updateVClampGain(int value) {
+	vclamp_gain = value;
+	setParameter("VClamp Gain", vclamp_gain);
+	return;
+}
+
+void MultiClamp::updateIClampGain(int value) {
+	iclamp_gain = value;
+	setParameter("IClamp Gain", iclamp_gain);
+	return;
+}
+
+void MultiClamp::updateVClampSens(int value) {
+	vclamp_sens = value;
+	setParameter("VClamp Sensitivity", vclamp_sens);
+	return;
+}
+
+void MultiClamp::updateIClampSens(int value) {
+	iclamp_sens = value;
+	setParameter("IClamp Sens", iclamp_sens);
+	return;
 }
 
 void MultiClamp::customizeGUI(void) {
@@ -229,14 +264,14 @@ void MultiClamp::customizeGUI(void) {
 	setLayout(customLayout);
 
 	// Make connections for buttons
-	QObject::connect(vclampGainBox, SIGNAL(activated(int)), this, SLOT(updateGUItoParam(void)));
-	QObject::connect(vclampSensBox, SIGNAL(activated(int)), this, SLOT(updateGUItoParam(void)));
-	QObject::connect(iclampSensBox, SIGNAL(activated(int)), this, SLOT(updateGUItoParam(void)));
-	QObject::connect(iclampGainBox, SIGNAL(activated(int)), this, SLOT(updateGUItoParam(void)));
-	QObject::connect(inputBox, SIGNAL(valueChanged(int)), this, SLOT(updateGUItoParam(void)));
-	QObject::connect(outputBox, SIGNAL(valueChanged(int)), this, SLOT(updateGUItoParam(void)));
-//	QObject::connect(ampButtonGroup, SIGNAL(buttonPressed(int)), this, SLOT(updateGUItoParam(void)));
-	QObject::connect(vclamp_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
-	QObject::connect(iclamp_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
-	QObject::connect(none_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
+	QObject::connect(vclampGainBox, SIGNAL(activated(int)), this, SLOT(updateVClampGain(int)));
+	QObject::connect(vclampSensBox, SIGNAL(activated(int)), this, SLOT(updateVClampSens(int)));
+	QObject::connect(iclampSensBox, SIGNAL(activated(int)), this, SLOT(updateIClampSens(int)));
+	QObject::connect(iclampGainBox, SIGNAL(activated(int)), this, SLOT(updateIClampGain(int)));
+	QObject::connect(inputBox, SIGNAL(valueChanged(int)), this, SLOT(updateInputChannel(int)));
+	QObject::connect(outputBox, SIGNAL(valueChanged(int)), this, SLOT(updateOutputChannel(int)));
+	QObject::connect(ampButtonGroup, SIGNAL(buttonPressed(int)), this, SLOT(updateMode(int)));
+//	QObject::connect(vclamp_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
+//	QObject::connect(iclamp_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
+//	QObject::connect(none_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
 }
