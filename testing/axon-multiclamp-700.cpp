@@ -32,12 +32,12 @@ MultiClamp::MultiClamp(void) : DefaultGUIModel("Axon MultiClamp 700 Controller",
 MultiClamp::~MultiClamp(void) {};
 
 void MultiClamp::initParameters(void) {
-	input_channel = 3;
-	output_channel = 5;
+	input_channel = 0;
+	output_channel = 1;
 
 	mode = 3; // NONE;
-	vclamp_gain = iclamp_gain = 2; //G1;
-	vclamp_sens = iclamp_sens = 2; //V20mV;
+	vclamp_gain = iclamp_gain = 0; //G1;
+	vclamp_sens = iclamp_sens = 0; //V20mV;
 };
 
 void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
@@ -52,12 +52,11 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			setParameter("Acquisition Mode", mode);
 			inputBox->setValue(input_channel);
 			outputBox->setValue(output_channel);
-//			updateModeGUI(mode);
 			ampButtonGroup->button(mode)->setChecked(true);
 			vclampGainBox->setCurrentIndex(vclamp_gain);
 			iclampGainBox->setCurrentIndex(iclamp_gain);
 			vclampSensBox->setCurrentIndex(vclamp_sens);
-			vclampSensBox->setCurrentIndex(iclamp_sens);
+			iclampSensBox->setCurrentIndex(iclamp_sens);
 			break;
 		
 		case MODIFY: //update( MODIFY ) is called by DefaultGUIModel::doLoad, so this is needed.
@@ -70,59 +69,17 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			mode = getParameter("Acquisition Mode").toInt();
 			inputBox->setValue(input_channel);
 			outputBox->setValue(output_channel);
-//			updateModeGUI(mode);
 			ampButtonGroup->button(mode)->setChecked(true);
 			vclampGainBox->setCurrentIndex(vclamp_gain);
 			iclampGainBox->setCurrentIndex(iclamp_gain);
 			vclampSensBox->setCurrentIndex(vclamp_sens);
-			vclampSensBox->setCurrentIndex(iclamp_sens);	
+			iclampSensBox->setCurrentIndex(iclamp_sens);	
 			break;
 
 		default:
 			break;
 	}
 }
-
-//void MultiClamp::updateModeGUI(AmpMode_t mode) {
-/*void MultiClamp::updateModeGUI(int mode) {
-	switch(mode) {
-		case 1: //ICLAMP:
-			iclamp_button->setChecked(true);
-			break;
-	
-		case 2: //VCLAMP:
-			vclamp_button->setChecked(true);
-			break;
-	
-		case 3: //NONE:
-			none_button->setChecked(true);
-			break;
-
-		default:
-			break;
-	}
-	return;
-}*/
-
-/*
-void MultiClamp::updateGUItoParam(void) {
-	input_channel = inputBox->value();
-	output_channel = outputBox->value();
-	vclamp_gain = vclampGainBox->currentIndex();
-	iclamp_gain = iclampGainBox->currentIndex();
-	vclamp_sens = vclampSensBox->currentIndex();
-	iclamp_sens = iclampSensBox->currentIndex();
-	mode = ampButtonGroup->checkedId();
-
-	setParameter("Input Channel", input_channel);
-	setParameter("Output Channel", output_channel);
-	setParameter("VClamp Gain", vclamp_gain);
-	setParameter("IClamp Gain", iclamp_gain);
-	setParameter("VClamp Sensitivity", vclamp_sens);
-	setParameter("IClamp Sensitivity", iclamp_sens);
-	setParameter("Acquisition Mode", mode);
-}
-*/
 
 void MultiClamp::updateInputChannel(int value) {
 	input_channel = value;
@@ -162,14 +119,14 @@ void MultiClamp::updateVClampSens(int value) {
 
 void MultiClamp::updateIClampSens(int value) {
 	iclamp_sens = value;
-	setParameter("IClamp Sens", iclamp_sens);
+	setParameter("IClamp Sensitivity", iclamp_sens);
 	return;
 }
 
 void MultiClamp::customizeGUI(void) {
 	QGridLayout *customLayout = DefaultGUIModel::getLayout();
 	
-//	customLayout->itemAtPosition(1,0)->widget()->setVisible(false);
+	customLayout->itemAtPosition(1,0)->widget()->setVisible(false);
 	customLayout->itemAtPosition(10,0)->widget()->setVisible(false);
 
 	// Input and Output channels
@@ -196,19 +153,19 @@ void MultiClamp::customizeGUI(void) {
 	vclampGroup->setLayout(vclampGroupLayout);
 	vclampGainBox = new QComboBox;
 	vclampSensBox = new QComboBox;
-	vclampGainBox->insertItem( 1, tr( "1" ) );
-	vclampGainBox->insertItem( 2, tr( "2" ) );
-	vclampGainBox->insertItem( 3, tr( "5" ) );
-	vclampGainBox->insertItem( 4, tr( "10" ) );
-	vclampGainBox->insertItem( 5, tr( "20" ) );
-	vclampGainBox->insertItem( 6, tr( "50" ) );
-	vclampGainBox->insertItem( 7, tr( "100" ) );
-	vclampGainBox->insertItem( 8, tr( "200" ) );
-	vclampGainBox->insertItem( 9, tr( "500" ) );
-	vclampGainBox->insertItem( 10, tr( "1000" ) );
-	vclampGainBox->insertItem( 11, tr( "2000" ) );
-	vclampSensBox->insertItem( 1, tr( "20 mV / V" ) );
-	vclampSensBox->insertItem( 2, tr( "100 mV / V" ) );
+	vclampGainBox->insertItem( 0, tr( "1" ) );
+	vclampGainBox->insertItem( 1, tr( "2" ) );
+	vclampGainBox->insertItem( 2, tr( "5" ) );
+	vclampGainBox->insertItem( 3, tr( "10" ) );
+	vclampGainBox->insertItem( 4, tr( "20" ) );
+	vclampGainBox->insertItem( 5, tr( "50" ) );
+	vclampGainBox->insertItem( 6, tr( "100" ) );
+	vclampGainBox->insertItem( 7, tr( "200" ) );
+	vclampGainBox->insertItem( 8, tr( "500" ) );
+	vclampGainBox->insertItem( 9, tr( "1000" ) );
+	vclampGainBox->insertItem( 10, tr( "2000" ) );
+	vclampSensBox->insertItem( 0, tr( "20 mV / V" ) );
+	vclampSensBox->insertItem( 1, tr( "100 mV / V" ) );
 	vclampGroupLayout->addRow( tr("Output Gain"), vclampGainBox);
 	vclampGroupLayout->addRow( tr("Sensitivity"), vclampSensBox);
 	
@@ -219,19 +176,19 @@ void MultiClamp::customizeGUI(void) {
 	iclampGroup->setLayout(iclampGroupLayout);
 	iclampGainBox = new QComboBox;
 	iclampSensBox = new QComboBox;
-	iclampGainBox->insertItem( 1, tr( "1" ) );
-	iclampGainBox->insertItem( 2, tr( "2" ) );
-	iclampGainBox->insertItem( 3, tr( "5" ) );
-	iclampGainBox->insertItem( 4, tr( "10" ) );
-	iclampGainBox->insertItem( 5, tr( "20" ) );
-	iclampGainBox->insertItem( 6, tr( "50" ) );
-	iclampGainBox->insertItem( 7, tr( "100" ) );
-	iclampGainBox->insertItem( 8, tr( "200" ) );
-	iclampGainBox->insertItem( 9, tr( "500" ) );
-	iclampGainBox->insertItem( 10, tr( "1000" ) );
-	iclampGainBox->insertItem( 11, tr( "2000" ) );
-	iclampSensBox->insertItem( 1, tr( "20 mV / V" ) );
-	iclampSensBox->insertItem( 2, tr( "100 mV / V" ) );
+	iclampGainBox->insertItem( 0, tr( "1" ) );
+	iclampGainBox->insertItem( 1, tr( "2" ) );
+	iclampGainBox->insertItem( 2, tr( "5" ) );
+	iclampGainBox->insertItem( 3, tr( "10" ) );
+	iclampGainBox->insertItem( 4, tr( "20" ) );
+	iclampGainBox->insertItem( 5, tr( "50" ) );
+	iclampGainBox->insertItem( 6, tr( "100" ) );
+	iclampGainBox->insertItem( 7, tr( "200" ) );
+	iclampGainBox->insertItem( 8, tr( "500" ) );
+	iclampGainBox->insertItem( 9, tr( "1000" ) );
+	iclampGainBox->insertItem( 10, tr( "2000" ) );
+	iclampSensBox->insertItem( 0, tr( "20 mV / V" ) );
+	iclampSensBox->insertItem( 1, tr( "100 mV / V" ) );
 	iclampGroupLayout->addRow( tr("Output Gain"), iclampGainBox);
 	iclampGroupLayout->addRow( tr("Sensitivity"), iclampSensBox);
 	
@@ -271,7 +228,4 @@ void MultiClamp::customizeGUI(void) {
 	QObject::connect(inputBox, SIGNAL(valueChanged(int)), this, SLOT(updateInputChannel(int)));
 	QObject::connect(outputBox, SIGNAL(valueChanged(int)), this, SLOT(updateOutputChannel(int)));
 	QObject::connect(ampButtonGroup, SIGNAL(buttonPressed(int)), this, SLOT(updateMode(int)));
-//	QObject::connect(vclamp_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
-//	QObject::connect(iclamp_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
-//	QObject::connect(none_button, SIGNAL(toggled(bool)), this, SLOT(updateGUItoParam(void)));
 }
