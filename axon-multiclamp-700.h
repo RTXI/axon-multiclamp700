@@ -56,8 +56,6 @@ class MultiClamp : public DefaultGUIModel {
 		double izero_ao_gain;
 		double vclamp_ai_gain;
 		double vclamp_ao_gain;
-//		double iclamp_out_gain;
-//		double vclamp_out_gain;
 	
 		QRadioButton *iclamp_button, *vclamp_button, *none_button;
 		QButtonGroup *ampButtonGroup;

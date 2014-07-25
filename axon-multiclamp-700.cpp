@@ -2,6 +2,8 @@
 #include "axon-multiclamp-700.h"
 #include <iostream>
 
+
+// Wrapper for QComboBox. Turns red when changed and black when "Set DAQ" is hit.
 MultiClampComboBox::MultiClampComboBox(QWidget *parent) : QComboBox(parent) {
 	QObject::connect(this, SIGNAL(activated(int)), this, SLOT(redden(void)));
 }
@@ -18,7 +20,7 @@ void MultiClampComboBox::redden(void) {
 	this->setPalette(palette);
 }
 
-
+// Wrapper for QSpinBox. Supposed to work the same, but for some reason it doesn't...
 MultiClampSpinBox::MultiClampSpinBox(QWidget *parent) : QSpinBox(parent) {
 	QObject::connect(this, SIGNAL(valueChanged(int)), this, SLOT(redden(void)));
 }
@@ -35,7 +37,7 @@ void MultiClampSpinBox::redden(void) {
 	this->setPalette(palette);
 }
 
-
+// function used to get all available input devices. 
 static void getDevice(DAQ::Device *d, void *p) {
 	DAQ::Device **device = reinterpret_cast<DAQ::Device **>(p);
 
@@ -47,7 +49,6 @@ extern "C" Plugin::Object * createRTXIPlugin(void) {
 };
 
 static DefaultGUIModel::variable_t vars[] = {
-//	{ "Modie Input", "", DefaultGUIModel::INPUT, },
 	{ "Mode Output", "", DefaultGUIModel::OUTPUT, },
 	{ "Acquisition Mode", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
 	{ "Input Channel", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
@@ -60,6 +61,7 @@ static DefaultGUIModel::variable_t vars[] = {
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
 
+// constructor. 
 MultiClamp::MultiClamp(void) : DefaultGUIModel("Axon MultiClamp 700 Controller", ::vars, ::num_vars) {
 	setWhatsThis("<p>Yeah, I'll get to this later... <br>-Ansel</p>");
 	DefaultGUIModel::createGUI(vars, num_vars);
@@ -71,6 +73,7 @@ MultiClamp::MultiClamp(void) : DefaultGUIModel("Axon MultiClamp 700 Controller",
 
 MultiClamp::~MultiClamp(void) {};
 
+// initialize parameters. 
 void MultiClamp::initParameters(void) {
 	input_channel = 0;
 	output_channel = 1;
@@ -79,8 +82,8 @@ void MultiClamp::initParameters(void) {
 	vclamp_gain = iclamp_gain = 1; //G1;
 	vclamp_sens = iclamp_sens = 20; //V20mV;
 
-	device = 0;
-	DAQ::Manager::getInstance()->foreachDevice(getDevice, &device);
+	device = 0; 
+	DAQ::Manager::getInstance()->foreachDevice(getDevice, &device); // get available devices. does nothing in none found
 
 	iclamp_ai_gain = 1; // 1 V/V
 	iclamp_ao_gain = 1.0 / 400e-12; // 400 pA/V
@@ -88,11 +91,9 @@ void MultiClamp::initParameters(void) {
 	izero_ao_gain = 0; // No output
 	vclamp_ai_gain = 2e-9 / 1.0; // .5 V/nA or 2 nA/V
 	vclamp_ao_gain = 1.0 / 20e-3; // 20 mV/V
-
-//	iclamp_out_gain = 1;
-//	vclamp_out_gain = 1;
 };
 
+// update called when 1. initialized, 2. modified by Set DAQ, or 3. loaded from a saved workspace
 void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 	switch(flag) {
 		case INIT:
@@ -123,11 +124,13 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			vclamp_sens = getParameter("VClamp Sensitivity").toDouble();
 			iclamp_sens = getParameter("IClamp Sensitivity").toDouble();
 
+			// change the bolded amp mode to reflect the selected button when Set DAQ was hit
 			ampButtonGroup->button(mode)->setStyleSheet("QRadioButton {font: normal;}");
 			mode = getParameter("Acquisition Mode").toInt();
 			ampButtonGroup->button(mode)->setStyleSheet("QRadioButton {font: bold;}");
 			ampButtonGroup->button(mode)->setChecked(true);
 
+			// blacken the buttons once the values are saved
 			inputBox->setValue(input_channel);
 			inputBox->blacken();
 			outputBox->setValue(output_channel);
@@ -141,6 +144,7 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			iclampSensBox->setCurrentIndex(convertSenstoGUI(iclamp_sens));
 			iclampSensBox->blacken();
 
+			// update the DAQ with the new parameters
 			updateDAQ();
 			break;
 
@@ -149,6 +153,7 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 	}
 }
 
+// updates the DAQ based on the settings set in the GUI
 void MultiClamp::updateDAQ(void) {
 	if (!device) return;
 
@@ -168,7 +173,7 @@ void MultiClamp::updateDAQ(void) {
 		case 3: //I=0
 			device->setAnalogGain(DAQ::AI, input_channel, izero_ai_gain / iclamp_gain);
 			device->setAnalogGain(DAQ::AO, output_channel, izero_ao_gain);
-			output(0) = 5.0;
+			output(0) = 0.0;
 			break;
 
 		default:
@@ -191,6 +196,8 @@ void MultiClamp::updateOutputChannel(int value) {
 void MultiClamp::updateMode(int value) {
 	parameter["Acquisition Mode"].edit->setText(QString::number(value));
 	parameter["Acquisition Mode"].edit->setModified(true);
+
+	update(MODIFY);
 	return;
 }
 
@@ -233,15 +240,12 @@ void MultiClamp::updateIClampSens(int value) {
 void MultiClamp::customizeGUI(void) {
 	QGridLayout *customLayout = DefaultGUIModel::getLayout();
 	
-//	customLayout->itemAtPosition(1,0)->widget()->setVisible(false);
-//	customLayout->itemAtPosition(10,0)->widget()->setVisible(false);
+	customLayout->itemAtPosition(1,0)->widget()->hide();
 	DefaultGUIModel::pauseButton->hide();
 	DefaultGUIModel::unloadButton->hide();
 	DefaultGUIModel::modifyButton->setText("Set DAQ");
 
 	// Input and Output channels
-	QGroupBox *ioGroup = new QGroupBox;//("DAQ Channels");
-	ioGroup->setStyleSheet("QGroupBox { font: bold; } ");
 	QHBoxLayout *ioGroupLayout = new QHBoxLayout;
 	inputBox = new MultiClampSpinBox;
 	inputBox->setRange(0,100);
@@ -251,12 +255,10 @@ void MultiClamp::customizeGUI(void) {
 	QLabel *outputBoxLabel = new QLabel;
 	inputBoxLabel->setText("Input");
 	outputBoxLabel->setText("Output");
-	ioGroupLayout->addWidget(inputBoxLabel);//, Qt::AlignLeft);
-	ioGroupLayout->addWidget(inputBox);//, Qt::AlignRight);
-	ioGroupLayout->addWidget(outputBoxLabel);//, Qt::AlignLeft);
-	ioGroupLayout->addWidget(outputBox);//, Qt::AlignRight);
-	ioGroupLayout->insertSpacing(2, 30);
-	ioGroup->setLayout(ioGroupLayout);
+	ioGroupLayout->addWidget(inputBoxLabel);
+	ioGroupLayout->addWidget(inputBox);
+	ioGroupLayout->addWidget(outputBoxLabel);
+	ioGroupLayout->addWidget(outputBox);
 
 	// VClamp settings
 	QGroupBox * vclampGroup = new QGroupBox("VClamp Settings");
@@ -309,7 +311,6 @@ void MultiClamp::customizeGUI(void) {
 	ampModeGroup->setStyleSheet("QGroupBox { font: bold; } ");
 	QHBoxLayout *ampModeGroupLayout = new QHBoxLayout;
 	ampModeGroup->setLayout(ampModeGroupLayout);
-	
 	iclamp_button = new QRadioButton("IClamp");
 	vclamp_button = new QRadioButton("VClamp");
 	none_button = new QRadioButton("I = 0");
@@ -326,7 +327,7 @@ void MultiClamp::customizeGUI(void) {
 	ampModeGroupLayout->addWidget(iclamp_button);
 
 	// add widgets to layout and set the new layout
-	customLayout->addWidget(ioGroup, 0, 0);
+	customLayout->addLayout(ioGroupLayout, 0, 0);
 	customLayout->addWidget(ampModeGroup, 2, 0);
 	customLayout->addWidget(vclampGroup, 3, 0);
 	customLayout->addWidget(iclampGroup, 4, 0);
@@ -342,6 +343,8 @@ void MultiClamp::customizeGUI(void) {
 	QObject::connect(ampButtonGroup, SIGNAL(buttonPressed(int)), this, SLOT(updateMode(int)));
 }
 
+
+// converts the index of an option in the GUI to the gain it represents
 double MultiClamp::convertGUItoGain(int index) {
 	switch(index) {
 		case 0:
@@ -371,6 +374,7 @@ double MultiClamp::convertGUItoGain(int index) {
 	};
 }
 
+// take the current gain and return the corresponding option in the gui
 int MultiClamp::convertGaintoGUI(double gain) {
 	int intgain;
 	intgain = int(gain);
@@ -403,6 +407,7 @@ int MultiClamp::convertGaintoGUI(double gain) {
 	}
 };
 
+// converts the index of an option in the GUI to the sensitivity it represents
 double MultiClamp::convertGUItoSens(int index) {
 	switch(index) {
 		case 0:
@@ -414,6 +419,7 @@ double MultiClamp::convertGUItoSens(int index) {
 	};
 }
 
+// take the current sensitivity and return the corresponding option in the gui
 int MultiClamp::convertSenstoGUI(double sens) {
 	int intsens;
 	intsens = int(sens);
