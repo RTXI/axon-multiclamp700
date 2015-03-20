@@ -1,9 +1,12 @@
 PLUGIN_NAME = axon_multiclamp700
 
-HEADERS = axon-multiclamp-700.h 
+HEADERS = axon_multiclamp700_commander.h \
+          axon_multiclamp700_commanderUI.h
 
-SOURCES = axon-multiclamp-700.cpp \
-			moc_axon-multiclamp-700.cpp 
+SOURCES = axon_multiclamp700_commander.cpp \
+          axon_multiclamp700_commanderUI.cpp \
+          moc_axon_multiclamp700_commander.cpp \
+          moc_axon_multiclamp700_commanderUI.cpp 
 
 LIBS = 
 
