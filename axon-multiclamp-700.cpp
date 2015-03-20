@@ -69,6 +69,7 @@ MultiClamp::MultiClamp(void) : DefaultGUIModel("Axon MultiClamp 700 Controller",
 	customizeGUI();
 	update( INIT );
 	refresh();
+	QTimer::singleShot(0, this, SLOT(resizeMe()));
 };
 
 MultiClamp::~MultiClamp(void) {};
