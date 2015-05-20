@@ -193,7 +193,8 @@ void MultiClamp::updateMode(int value) {
 	parameter["Acquisition Mode"].edit->setText(QString::number(value));
 	parameter["Acquisition Mode"].edit->setModified(true);
 
-	update(MODIFY);
+//	update(MODIFY);
+	modify();
 	return;
 }
 
