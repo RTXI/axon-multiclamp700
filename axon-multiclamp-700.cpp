@@ -81,7 +81,7 @@ void MultiClamp::initParameters(void) {
 
 	mode = 3; // NONE;
 	vclamp_gain = iclamp_gain = 1; //G1;
-	vclamp_sens 20; 
+	vclamp_sens = 20; 
 	iclamp_sens = 400; //V20mV;
 
 	device = 0; 
@@ -103,7 +103,7 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			setParameter("Output Channel",output_channel);
 			setParameter("VClamp Gain", vclamp_gain);
 			setParameter("IClamp Gain", iclamp_gain);
-			setParameter("VClamp Sensitivity", vclamp_);
+			setParameter("VClamp Sensitivity", vclamp_sens);
 			setParameter("IClamp Sensitivity", iclamp_sens);
 			setParameter("Acquisition Mode", mode);
 
