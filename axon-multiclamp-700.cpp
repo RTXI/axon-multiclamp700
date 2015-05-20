@@ -81,7 +81,8 @@ void MultiClamp::initParameters(void) {
 
 	mode = 3; // NONE;
 	vclamp_gain = iclamp_gain = 1; //G1;
-	vclamp_sens = iclamp_sens = 20; //V20mV;
+	vclamp_sens 20; 
+	iclamp_sens = 400; //V20mV;
 
 	device = 0; 
 	DAQ::Manager::getInstance()->foreachDevice(getDevice, &device); // get available devices. does nothing in none found
@@ -102,7 +103,7 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			setParameter("Output Channel",output_channel);
 			setParameter("VClamp Gain", vclamp_gain);
 			setParameter("IClamp Gain", iclamp_gain);
-			setParameter("VClamp Sensitivity", vclamp_sens);
+			setParameter("VClamp Sensitivity", vclamp_);
 			setParameter("IClamp Sensitivity", iclamp_sens);
 			setParameter("Acquisition Mode", mode);
 
@@ -113,7 +114,7 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 
 			vclampGainBox->setCurrentIndex(convertGaintoGUI(vclamp_gain));
 			iclampGainBox->setCurrentIndex(convertGaintoGUI(iclamp_gain));
-			vclampSensBox->setCurrentIndex(convertVSenstoGUI(vclamp_sens));
+			vclampSensBox->setCurrentIndex(convertVSenstoGUI(vclamp_sens)); //vclamp_sens
 			iclampSensBox->setCurrentIndex(convertISenstoGUI(iclamp_sens));
 			break;
 		
@@ -122,8 +123,8 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			output_channel = getParameter("Output Channel").toInt();
 			vclamp_gain = getParameter("VClamp Gain").toDouble();
 			iclamp_gain = getParameter("IClamp Gain").toDouble();
-			vclamp_sens = getParameter("VClamp Sensitivity").toDouble();
-			iclamp_sens = getParameter("IClamp Sensitivity").toDouble();
+			vclamp_ao_gain = getParameter("VClamp Sensitivity").toDouble();  //vclamp_sens
+			iclamp_ao_gain = getParameter("IClamp Sensitivity").toDouble(); //iclamp_sens
 
 			// change the bolded amp mode to reflect the selected button when Set DAQ was hit
 			ampButtonGroup->button(mode)->setStyleSheet("QRadioButton {font: normal;}");
@@ -140,9 +141,9 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			vclampGainBox->blacken();
 			iclampGainBox->setCurrentIndex(convertGaintoGUI(iclamp_gain));
 			iclampGainBox->blacken();
-			vclampSensBox->setCurrentIndex(convertVSenstoGUI(vclamp_sens));
+			vclampSensBox->setCurrentIndex(convertVSenstoGUI(vclamp_sens)); //vclamp_sens
 			vclampSensBox->blacken();
-			iclampSensBox->setCurrentIndex(convertISenstoGUI(iclamp_sens));
+			iclampSensBox->setCurrentIndex(convertISenstoGUI(iclamp_sens)); //iclamp_sens
 			iclampSensBox->blacken();
 
 			// update the DAQ with the new parameters
@@ -206,6 +207,7 @@ void MultiClamp::updateVClampGain(int value) {
 	double temp;
 
 	temp = convertGUItoGain(value);
+	vclamp_gain = temp;
 	parameter["VClamp Gain"].edit->setText(QString::number(temp));
 	parameter["VClamp Gain"].edit->setModified(true);
 	return;
@@ -215,27 +217,28 @@ void MultiClamp::updateIClampGain(int value) {
 	double temp;
 
 	temp = convertGUItoGain(value);
+	iclamp_gain = temp;
 	parameter["IClamp Gain"].edit->setText(QString::number(temp));
 	parameter["IClamp Gain"].edit->setModified(true);
 	return;
 }
 
 void MultiClamp::updateVClampSens(int value) {
-	double temp;
+//	double temp;
 
-	temp = convertGUItoVSens(value);
-	vclamp_ao_gain = 1.0 / (temp * 1e-3);
-	parameter["VClamp Sensitivity"].edit->setText(QString::number(temp));
+	vclamp_sens = convertGUItoVSens(value);
+	vclamp_ao_gain = 1.0 / (vclamp_sens * 1e-3);
+	parameter["VClamp Sensitivity"].edit->setText(QString::number(vclamp_sens));
 	parameter["VClamp Sensitivity"].edit->setModified(true);
 	return;
 }
 
 void MultiClamp::updateIClampSens(int value) {
-	double temp;
+//	double temp;
 
-	temp = convertGUItoISens(value);
-	iclamp_ao_gain = 1.0 / (temp * 1e-12);
-	parameter["IClamp Sensitivity"].edit->setText(QString::number(temp));
+	iclamp_sens = convertGUItoISens(value);
+	iclamp_ao_gain = 1.0 / (iclamp_sens * 1e-12);
+	parameter["IClamp Sensitivity"].edit->setText(QString::number(iclamp_sens));
 	parameter["IClamp Sensitivity"].edit->setModified(true);
 	return;
 }
