@@ -458,9 +458,9 @@ int MultiClamp::convertISenstoGUI(double sens) {
 	intsens = int(sens);
 
 	switch(intsens) {
-		case 200:
+		case 400:
 			return 0;
-		case 4000:
+		case 2000:
 			return 1;
 		default:
 			return 0;
