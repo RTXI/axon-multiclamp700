@@ -1,7 +1,5 @@
-#include <QtGui>
 #include "axon-multiclamp700.h"
 #include <iostream>
-
 
 // Wrapper for QComboBox. Turns red when changed and black when "Set DAQ" is hit.
 MultiClampComboBox::MultiClampComboBox(QWidget *parent) : QComboBox(parent) {
