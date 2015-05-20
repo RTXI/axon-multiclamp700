@@ -9,7 +9,6 @@ class MultiClampComboBox : public QComboBox {
 		MultiClampComboBox(QWidget * =0);
 		~MultiClampComboBox(void);
 		void blacken(void);
-		QPalette palette;
 
 	public slots:
 		void redden(void);
@@ -22,7 +21,6 @@ class MultiClampSpinBox : public QSpinBox {
 		MultiClampSpinBox(QWidget * =0);
 		~MultiClampSpinBox(void);
 		void blacken(void);
-		QPalette palette;
 
 	public slots:
 		void redden(void);

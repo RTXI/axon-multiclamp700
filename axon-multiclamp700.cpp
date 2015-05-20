@@ -9,16 +9,13 @@ MultiClampComboBox::MultiClampComboBox(QWidget *parent) : QComboBox(parent) {
 MultiClampComboBox::~MultiClampComboBox(void) {}
 
 void MultiClampComboBox::blacken(void) {
-	palette.setColor(QPalette::Text, Qt::black);
-	this->setPalette(palette);
+	this->setStyleSheet("QComboBox { color:black; }");
 }
 
 void MultiClampComboBox::redden(void) {
-	palette.setColor(QPalette::Text, Qt::red);
-	this->setPalette(palette);
+	this->setStyleSheet("QComboBox { color:red; }");
 }
 
-// Wrapper for QSpinBox. Supposed to work the same, but for some reason it doesn't...
 MultiClampSpinBox::MultiClampSpinBox(QWidget *parent) : QSpinBox(parent) {
 	QObject::connect(this, SIGNAL(valueChanged(int)), this, SLOT(redden(void)));
 }
@@ -26,13 +23,11 @@ MultiClampSpinBox::MultiClampSpinBox(QWidget *parent) : QSpinBox(parent) {
 MultiClampSpinBox::~MultiClampSpinBox(void) {}
 
 void MultiClampSpinBox::blacken(void) {
-	palette.setColor(QPalette::Text, Qt::black);
-	this->setPalette(palette);
+	this->setStyleSheet("QSpinBox { color:black; }");
 }
 
 void MultiClampSpinBox::redden(void) {
-	palette.setColor(QPalette::Text, Qt::red);
-	this->setPalette(palette);
+	this->setStyleSheet("QSpinBox { color:red; }");
 }
 
 // function used to get all available input devices. 
@@ -177,6 +172,7 @@ void MultiClamp::updateDAQ(void) {
 			break;
 
 		default:
+			std::cout<<"Error: default case called in updateDAQ()"<<std::endl;
 			break;
 	}
 }
