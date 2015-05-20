@@ -113,8 +113,8 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 
 			vclampGainBox->setCurrentIndex(convertGaintoGUI(vclamp_gain));
 			iclampGainBox->setCurrentIndex(convertGaintoGUI(iclamp_gain));
-			vclampSensBox->setCurrentIndex(convertSenstoGUI(vclamp_sens));
-			iclampSensBox->setCurrentIndex(convertSenstoGUI(iclamp_sens));
+			vclampSensBox->setCurrentIndex(convertVSenstoGUI(vclamp_sens));
+			iclampSensBox->setCurrentIndex(convertISenstoGUI(iclamp_sens));
 			break;
 		
 		case MODIFY: //update( MODIFY ) is called by DefaultGUIModel::doLoad, so this is needed.
@@ -140,9 +140,9 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			vclampGainBox->blacken();
 			iclampGainBox->setCurrentIndex(convertGaintoGUI(iclamp_gain));
 			iclampGainBox->blacken();
-			vclampSensBox->setCurrentIndex(convertSenstoGUI(vclamp_sens));
+			vclampSensBox->setCurrentIndex(convertVSenstoGUI(vclamp_sens));
 			vclampSensBox->blacken();
-			iclampSensBox->setCurrentIndex(convertSenstoGUI(iclamp_sens));
+			iclampSensBox->setCurrentIndex(convertISenstoGUI(iclamp_sens));
 			iclampSensBox->blacken();
 
 			// update the DAQ with the new parameters
@@ -223,7 +223,8 @@ void MultiClamp::updateIClampGain(int value) {
 void MultiClamp::updateVClampSens(int value) {
 	double temp;
 
-	temp = convertGUItoSens(value);
+	temp = convertGUItoVSens(value);
+	vclamp_ao_gain = 1.0 / (temp * 1e-3);
 	parameter["VClamp Sensitivity"].edit->setText(QString::number(temp));
 	parameter["VClamp Sensitivity"].edit->setModified(true);
 	return;
@@ -232,7 +233,8 @@ void MultiClamp::updateVClampSens(int value) {
 void MultiClamp::updateIClampSens(int value) {
 	double temp;
 
-	temp = convertGUItoSens(value);
+	temp = convertGUItoISens(value);
+	iclamp_ao_gain = 1.0 / (temp * 1e-12);
 	parameter["IClamp Sensitivity"].edit->setText(QString::number(temp));
 	parameter["IClamp Sensitivity"].edit->setModified(true);
 	return;
@@ -276,7 +278,7 @@ void MultiClamp::customizeGUI(void) {
 	vclampGainBox->insertItem( 5, tr( "50" ) );
 	vclampGainBox->insertItem( 6, tr( "100" ) );
 	vclampGainBox->insertItem( 7, tr( "200" ) );
-	vclampGainBox->insertItem( 8, tr( "500" ) );
+	vclampGainBox->insertItem( 8, tr( "600" ) );
 	vclampGainBox->insertItem( 9, tr( "1000" ) );
 	vclampGainBox->insertItem( 10, tr( "2000" ) );
 	vclampSensBox->insertItem( 0, tr( "20 mV / V" ) );
@@ -299,7 +301,7 @@ void MultiClamp::customizeGUI(void) {
 	iclampGainBox->insertItem( 5, tr( "50" ) );
 	iclampGainBox->insertItem( 6, tr( "100" ) );
 	iclampGainBox->insertItem( 7, tr( "200" ) );
-	iclampGainBox->insertItem( 8, tr( "500" ) );
+	iclampGainBox->insertItem( 8, tr( "600" ) );
 	iclampGainBox->insertItem( 9, tr( "1000" ) );
 	iclampGainBox->insertItem( 10, tr( "2000" ) );
 	iclampSensBox->insertItem( 0, tr( "20 mV / V" ) );
@@ -365,7 +367,7 @@ double MultiClamp::convertGUItoGain(int index) {
 		case 7:
 			return 200;
 		case 8:
-			return 500;
+			return 600;
 		case 9:
 			return 1000;
 		case 10:
@@ -397,7 +399,7 @@ int MultiClamp::convertGaintoGUI(double gain) {
 			return 6;
 		case 200:
 			return 7;
-		case 500:
+		case 600:
 			return 8;
 		case 1000:
 			return 9;
@@ -409,19 +411,31 @@ int MultiClamp::convertGaintoGUI(double gain) {
 };
 
 // converts the index of an option in the GUI to the sensitivity it represents
-double MultiClamp::convertGUItoSens(int index) {
+double MultiClamp::convertGUItoVSens(int index) {
 	switch(index) {
 		case 0:
 			return 20;
 		case 1:
 			return 100;
 		default:
-			return 20;
+			return 100;
+	};
+}
+
+// converts the index of an option in the GUI to the sensitivity it represents
+double MultiClamp::convertGUItoISens(int index) {
+	switch(index) {
+		case 0:
+			return 400;
+		case 1:
+			return 2000;
+		default:
+			return 2000;
 	};
 }
 
 // take the current sensitivity and return the corresponding option in the gui
-int MultiClamp::convertSenstoGUI(double sens) {
+int MultiClamp::convertVSenstoGUI(double sens) {
 	int intsens;
 	intsens = int(sens);
 
@@ -429,6 +443,21 @@ int MultiClamp::convertSenstoGUI(double sens) {
 		case 20:
 			return 0;
 		case 100:
+			return 1;
+		default:
+			return 0;
+	}
+}
+
+// take the current sensitivity and return the corresponding option in the gui
+int MultiClamp::convertISenstoGUI(double sens) {
+	int intsens;
+	intsens = int(sens);
+
+	switch(intsens) {
+		case 200:
+			return 0;
+		case 4000:
 			return 1;
 		default:
 			return 0;

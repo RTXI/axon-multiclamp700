@@ -64,9 +64,11 @@ class MultiClamp : public DefaultGUIModel {
 		MultiClampComboBox *vclampSensBox, *iclampSensBox;
 
 		double convertGUItoGain(int);
-		double convertGUItoSens(int);
+		double convertGUItoVSens(int);
+		double convertGUItoISens(int);
 		int convertGaintoGUI(double);
-		int convertSenstoGUI(double);
+		int convertVSenstoGUI(double);
+		int convertISenstoGUI(double);
 
 	private slots:
 		void updateInputChannel(int);
