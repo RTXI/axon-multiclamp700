@@ -246,7 +246,7 @@ void MultiClamp::updateIClampSens(int value) {
 void MultiClamp::customizeGUI(void) {
 	QGridLayout *customLayout = DefaultGUIModel::getLayout();
 	
-	customLayout->itemAtPosition(1,0)->widget()->hide();
+//	customLayout->itemAtPosition(1,0)->widget()->hide();
 	DefaultGUIModel::pauseButton->hide();
 	DefaultGUIModel::unloadButton->hide();
 	DefaultGUIModel::modifyButton->setText("Set DAQ");
