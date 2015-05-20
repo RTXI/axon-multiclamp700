@@ -246,7 +246,7 @@ void MultiClamp::updateIClampSens(int value) {
 void MultiClamp::customizeGUI(void) {
 	QGridLayout *customLayout = DefaultGUIModel::getLayout();
 	
-//	customLayout->itemAtPosition(1,0)->widget()->hide();
+	customLayout->itemAtPosition(1,0)->widget()->hide();
 	DefaultGUIModel::pauseButton->hide();
 	DefaultGUIModel::unloadButton->hide();
 	DefaultGUIModel::modifyButton->setText("Set DAQ");
@@ -281,7 +281,7 @@ void MultiClamp::customizeGUI(void) {
 	vclampGainBox->insertItem( 5, tr( "50" ) );
 	vclampGainBox->insertItem( 6, tr( "100" ) );
 	vclampGainBox->insertItem( 7, tr( "200" ) );
-	vclampGainBox->insertItem( 8, tr( "600" ) );
+	vclampGainBox->insertItem( 8, tr( "500" ) );
 	vclampGainBox->insertItem( 9, tr( "1000" ) );
 	vclampGainBox->insertItem( 10, tr( "2000" ) );
 	vclampSensBox->insertItem( 0, tr( "20 mV / V" ) );
@@ -304,11 +304,11 @@ void MultiClamp::customizeGUI(void) {
 	iclampGainBox->insertItem( 5, tr( "50" ) );
 	iclampGainBox->insertItem( 6, tr( "100" ) );
 	iclampGainBox->insertItem( 7, tr( "200" ) );
-	iclampGainBox->insertItem( 8, tr( "600" ) );
+	iclampGainBox->insertItem( 8, tr( "500" ) );
 	iclampGainBox->insertItem( 9, tr( "1000" ) );
 	iclampGainBox->insertItem( 10, tr( "2000" ) );
-	iclampSensBox->insertItem( 0, tr( "20 mV / V" ) );
-	iclampSensBox->insertItem( 1, tr( "100 mV / V" ) );
+	iclampSensBox->insertItem( 0, tr( "400 pA / V" ) );
+	iclampSensBox->insertItem( 1, tr( "2 nA / V" ) );
 	iclampGroupLayout->addRow( tr("Output Gain"), iclampGainBox);
 	iclampGroupLayout->addRow( tr("Sensitivity"), iclampSensBox);
 	
@@ -370,7 +370,7 @@ double MultiClamp::convertGUItoGain(int index) {
 		case 7:
 			return 200;
 		case 8:
-			return 600;
+			return 500;
 		case 9:
 			return 1000;
 		case 10:
@@ -402,7 +402,7 @@ int MultiClamp::convertGaintoGUI(double gain) {
 			return 6;
 		case 200:
 			return 7;
-		case 600:
+		case 500:
 			return 8;
 		case 1000:
 			return 9;
