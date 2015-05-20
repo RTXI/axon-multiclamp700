@@ -1,5 +1,5 @@
 #include <QtGui>
-#include "axon-multiclamp-700.h"
+#include "axon-multiclamp700.h"
 #include <iostream>
 
 
