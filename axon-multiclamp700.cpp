@@ -218,7 +218,6 @@ void MultiClamp::updateMode(int value) {
 	parameter["Acquisition Mode"].edit->setText(QString::number(value));
 	parameter["Acquisition Mode"].edit->setModified(true);
 
-//	update(MODIFY);
 	modify();
 	return;
 }
@@ -244,8 +243,6 @@ void MultiClamp::updateIClampGain(int value) {
 }
 
 void MultiClamp::updateVClampSens(int value) {
-//	double temp;
-
 	vclamp_sens = convertGUItoVSens(value);
 	vclamp_ao_gain = 1.0 / (vclamp_sens * 1e-3);
 	parameter["VClamp Sensitivity"].edit->setText(QString::number(vclamp_sens));
@@ -254,8 +251,6 @@ void MultiClamp::updateVClampSens(int value) {
 }
 
 void MultiClamp::updateIClampSens(int value) {
-//	double temp;
-
 	iclamp_sens = convertGUItoISens(value);
 	iclamp_ao_gain = 1.0 / (iclamp_sens * 1e-12);
 	parameter["IClamp Sensitivity"].edit->setText(QString::number(iclamp_sens));
