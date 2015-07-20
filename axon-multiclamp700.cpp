@@ -60,21 +60,28 @@ extern "C" Plugin::Object * createRTXIPlugin(void) {
 };
 
 static DefaultGUIModel::variable_t vars[] = {
-	{ "Mode Output", "", DefaultGUIModel::OUTPUT, },
-	{ "Acquisition Mode", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
-	{ "Input Channel", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
-	{ "Output Channel", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
-	{ "VClamp Gain", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
-	{ "IClamp Gain", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
-	{ "VClamp Sensitivity", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
-	{ "IClamp Sensitivity", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
+	{ "Mode Output", "Control signal returned to amplifier", DefaultGUIModel::OUTPUT, },
+	{ "Acquisition Mode", "Amplifier mode setting (vclamp, iclamp, or i=0)", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
+	{ "Input Channel", "Input channel to scale (#)", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
+	{ "Output Channel", "Output channel to scale (#)", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, },
+	{ "VClamp Gain", "Headstage configuration gain for vclamp mode", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
+	{ "IClamp Gain", "Headstage configuration gain for iclamp mode", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
+	{ "VClamp Sensitivity", "Command sensitivity for vclamp (mV/V)", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
+	{ "IClamp Sensitivity", "Command sensitivity for iclamp (pA/V)", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
 
 // constructor. 
 MultiClamp::MultiClamp(void) : DefaultGUIModel("Axon MultiClamp 700 Controller", ::vars, ::num_vars) {
-	setWhatsThis("<p>Yeah, I'll get to this later... <br>-Ansel</p>");
+	setWhatsThis("<p>Amplifier control module to compensate for scaling properties of the Axon Multiclamp 700 controller. This module essentially acts as an interface that augments the system control panel. Rather than manually set the gains on each channel, you can use this module to set them with a few button clicks instead.</p>");
 	DefaultGUIModel::createGUI(vars, num_vars);
 	initParameters();
 	customizeGUI();
