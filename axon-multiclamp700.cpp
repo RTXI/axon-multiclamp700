@@ -88,7 +88,7 @@ MultiClamp::~MultiClamp(void) {};
 // initialize parameters. 
 void MultiClamp::initParameters(void) {
 	input_channel = 0;
-	output_channel = 1;
+	output_channel = 0;
 
 	mode = 3; // NONE;
 	vclamp_gain = iclamp_gain = 1; //G1;
