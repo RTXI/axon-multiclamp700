@@ -27,7 +27,7 @@ MultiClampComboBox::MultiClampComboBox(QWidget *parent) : QComboBox(parent) {
 MultiClampComboBox::~MultiClampComboBox(void) {}
 
 void MultiClampComboBox::blacken(void) {
-	this->setStyleSheet("QComboBox { color:black; }");
+	this->setStyleSheet("QComboBox { color:" + QApplication::palette().color(QPalette::WindowText).name() + "; }");
 }
 
 void MultiClampComboBox::redden(void) {
@@ -41,7 +41,7 @@ MultiClampSpinBox::MultiClampSpinBox(QWidget *parent) : QSpinBox(parent) {
 MultiClampSpinBox::~MultiClampSpinBox(void) {}
 
 void MultiClampSpinBox::blacken(void) {
-	this->setStyleSheet("QSpinBox { color:black; }");
+	this->setStyleSheet("QSpinBox { color:" + QApplication::palette().color(QPalette::WindowText).name() + "; }");
 }
 
 void MultiClampSpinBox::redden(void) {
