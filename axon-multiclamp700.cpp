@@ -141,8 +141,10 @@ void MultiClamp::update(DefaultGUIModel::update_flags_t flag) {
 			output_channel = getParameter("Output Channel").toInt();
 			vclamp_gain = getParameter("VClamp Gain").toDouble();
 			iclamp_gain = getParameter("IClamp Gain").toDouble();
-			vclamp_ao_gain = getParameter("VClamp Sensitivity").toDouble();  //vclamp_sens
-			iclamp_ao_gain = getParameter("IClamp Sensitivity").toDouble(); //iclamp_sens
+			vclamp_sens = getParameter("VClamp Sensitivity").toDouble(); 
+			iclamp_sens = getParameter("IClamp Sensitivity").toDouble(); 
+			vclamp_ao_gain = 1.0 / (vclamp_sens*1e-3); 
+			iclamp_ao_gain = 1.0 / (iclamp_sens*1e-12); 
 
 			// change the bolded amp mode to reflect the selected button when Set DAQ was hit
 			ampButtonGroup->button(mode)->setStyleSheet("QRadioButton {font: normal;}");
